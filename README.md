@@ -15,7 +15,6 @@
 ```
 .
 ├── meshes                  # 机器人模型文件，纹理材质等等
- 需要去 [unitree_rl_gym] (https://github.com/unitreerobotics/unitree_rl_gym/tree/main/resources/robots/g1_description/meshes) 内下载
 ├── g1_29dof.urdf           # G1 机器人 URDF 模型（29 自由度）
 ├── target_pose.npy         # 保存 GUI 端导出的关节角度数据（弧度制）
 ├── windows_gui.py          # Windows 端 GUI 程序（PyQt5 + pyqtgraph）
@@ -33,6 +32,7 @@
 - **系统**：Windows 10/11
 - **Python**: 3.8 ~ 3.10
 - **依赖**：详见 `requirements.txt`
+-  需要去 [unitree_rl_gym] (https://github.com/unitreerobotics/unitree_rl_gym/tree/main/resources/robots/g1_description/meshes) 内下载
   ```bash
   pip install -r requirements.txt
   ```
