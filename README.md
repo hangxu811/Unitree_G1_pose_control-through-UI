@@ -32,7 +32,7 @@
 - **系统**：Windows 10/11
 - **Python**: 3.8 ~ 3.10
 - **依赖**：详见 `requirements.txt`
--  需要去 [unitree_rl_gym] (https://github.com/unitreerobotics/unitree_rl_gym/tree/main/resources/robots/g1_description/meshes) 内下载
+-  需要去 [unitree_rl_gym] (https://github.com/unitreerobotics/unitree_rl_gym/tree/main/resources/robots/g1_description/meshes) 内下载meshes文件夹 然后放到和GUI代码一个目录下
   ```bash
   pip install -r requirements.txt
   ```
