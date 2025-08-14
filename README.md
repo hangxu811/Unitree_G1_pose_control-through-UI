@@ -14,6 +14,7 @@
 
 ```
 .
+├──meshes                  # 机器人模型文件，纹理材质等等
 ├── g1_29dof.urdf           # G1 机器人 URDF 模型（29 自由度）
 ├── target_pose.npy         # 保存 GUI 端导出的关节角度数据（弧度制）
 ├── windows_gui.py          # Windows 端 GUI 程序（PyQt5 + pyqtgraph）
