@@ -1,133 +1,131 @@
-Unitree G1 Motion Design & Control GUI
-📖 Overview
+# Unitree G1 Motion Design & Control GUI
 
-This project provides a motion design and synchronized control system for the Unitree G1 humanoid robot, consisting of a Windows GUI and a robot-side control program.
+## Overview
 
-Windows GUI: A 3D visualization interface that allows adjusting joint poses via mouse drag/wheel and saving them as a pose file target_pose.npy.
+This project offers a complete solution for designing and controlling poses for the Unitree G1 humanoid robot. It consists of two main components:
 
-Robot-side program: Reads the pose file, performs smooth interpolation to the target pose, and controls the real G1 motors through Unitree SDK-2, enabling the robot to replicate the pose designed in the GUI in real time.
+- **Windows GUI**: An interactive 3D visualization tool for designing robot joint poses, which can be exported as pose files.
+- **Robot Control Program**: A script that runs on the robot, reads the pose files, smoothly interpolates to target poses, and commands the real robot via the Unitree SDK-2.
 
-Designed for motion design, pose synchronization demos, and remote control experiments.
+The system is ideal for motion design, pose synchronization demonstrations, and remote control experiments.
 
-📂 Project Structure
+---
+
+## Project Structure
+
+```
 .
-├── meshes                  # Robot model files, textures, etc.
-├── g1_29dof.urdf           # G1 robot URDF model (29 DOFs)
-├── target_pose.npy         # Joint angle data exported from GUI (radians)
-├── windows_gui.py          # Windows-side GUI program (PyQt5 + pyqtgraph)
-├── robot_control.py        # Robot-side control program (Unitree SDK-2)
-├── requirements.txt        # Dependencies for Windows
+├── meshes/                  # 3D robot model files, textures, etc.
+├── g1_29dof.urdf            # URDF model for G1 (29 degrees of freedom)
+├── target_pose.npy          # Joint angle data file (exported by GUI, in radians)
+├── windows_gui.py           # Windows GUI application (PyQt5 + pyqtgraph)
+├── robot_control.py         # Robot-side control script (using Unitree SDK-2)
+├── requirements.txt         # Python dependencies for Windows
 └── README.md
+```
 
-💻 Requirements
-Windows Side
+---
 
-OS: Windows 10/11
+## Requirements
 
-Python: 3.8 ~ 3.10
+### Windows Side
 
-Dependencies: see requirements.txt
+- **OS:** Windows 10/11
+- **Python:** 3.8 ~ 3.10
+- **Dependencies:** Listed in `requirements.txt`
+- **Additional:** Download the `meshes` folder from [unitree_rl_gym](https://github.com/unitreerobotics/unitree_rl_gym) and place it next to the GUI code.
 
-You need to download the meshes folder from unitree_rl_gym
- and place it in the same directory as the GUI code.
-
+Install dependencies:
+```sh
 pip install -r requirements.txt
+```
 
-Robot Side
+### Robot Side
 
-OS: Ubuntu 20.04 (recommended to run on G1’s onboard computer)
+- **OS:** Ubuntu 20.04 (recommended for G1 onboard computer)
+- **Python:** 3.8 ~ 3.10
+- **Dependencies:**
+    - Unitree SDK-2 for Python (**install manually, see Unitree docs**)
+    - numpy
 
-Python: 3.8 ~ 3.10
-
-Dependencies:
-
-Unitree SDK-2 for Python
-
-numpy
-
+Install numpy:
+```sh
 pip install numpy
+```
 
+---
 
-⚠️ Unitree SDK-2 for Python must be installed manually. Please refer to the official Unitree documentation or repository.
+## Communication Method
 
-🔌 Communication Method
+The default synchronization uses a shared file workflow:
+1. The GUI saves the target pose as `target_pose.npy`.
+2. The file is uploaded to the robot via `scp` to a pre-defined path.
+3. The GUI allows SSH address input for automatic upload.
+4. The robot-side program monitors the file and executes the pose upon change.
 
-The current version uses a shared file mechanism for synchronization:
+> **Tip:** For real-time networked control, you can extend this to use TCP/UDP and a custom JSON protocol.
 
-Windows GUI saves target_pose.npy
+---
 
-File is uploaded to the robot via scp into a fixed path
+## Usage
 
-GUI provides a button to enter SSH address and upload automatically
+### 1. Start the Robot Control Program
 
-Robot-side program periodically checks the file and executes the pose
-
-If real-time network communication is required, it can be extended to TCP/UDP JSON data transfer with a custom protocol.
-
-🚀 Usage
-1. Run the Robot Control Program
-
-Copy robot_control.py to the robot’s onboard computer.
-
-On the G1 control computer, run:
-
+Copy `robot_control.py` to the robot (G1's onboard computer), then run:
+```sh
 python3 robot_control.py
+```
+- Initializes DDS channels (`rt/lowcmd`, `rt/lowstate`)
+- Waits for updates to `target_pose.npy` and interpolates to the new pose
 
+> **Safety Reminder:** Ensure the robot is in a clear area before switching poses.
 
-Initializes DDS channels (rt/lowcmd / rt/lowstate)
-
-Waits for target_pose.npy updates and interpolates to the target pose
-
-⚠️ Safety Note: Ensure the robot is in a safe environment with no obstacles before switching poses.
-
-2. Run the Windows GUI
+### 2. Start the Windows GUI
 
 On your Windows PC, run:
-
+```sh
 python windows_gui.py
+```
+- Use the mouse to drag joints and adjust the 3D model pose
+- Use the scroll wheel for extra rotations (shoulder, wrist, hip, ankle, waist third DOF)
+- Click "Export current joint radians" to save the pose
+- Optionally, enter the robot's SSH address (e.g., `unitree@192.168.123.10`) for direct upload
 
+### 3. Joint Control Notes
 
-Drag joints in the 3D model with the mouse, use the scroll wheel for some extra rotations
+- **Drag Control:** Select and drag joints in the 3D model
+- **Scroll Adjustment:** For certain joints, use the scroll wheel
+- **Range Limits:** Joint angles are clipped to mechanical limits automatically
 
-Click “Export current joint radians” to save pose
+---
 
-Optionally input SSH address (e.g., unitree@192.168.123.10) for direct upload to the robot
+## Data Format
 
-3. Joint Control Notes
+- **target_pose.npy:** 1D numpy float32 array, length 29 (one per joint)
+    - **Unit:** radians
+    - **Order:** See `control_joints` in `windows_gui.py`
 
-Drag control: Select joints in the 3D model and drag
+---
 
-Scroll adjustment: For some joints (shoulder, wrist, hip, ankle, waist third DOF)
+## Troubleshooting
 
-Range limits: Each joint has mechanical limits; angles beyond the range are automatically clipped
+- **Qt plugin error when launching GUI:**  
+  - The code auto-sets `QT_QPA_PLATFORM_PLUGIN_PATH`. Make sure all dependencies are installed in your Python environment.
+- **No motion on robot side:**  
+  - Verify that `target_pose.npy` is updated on the robot. Inspect the file's contents if needed.
+- **SCP upload failure:**  
+  - Ensure OpenSSH is installed on Windows, and confirm you can connect to the G1 robot via SSH.
 
-📏 Data Format
+---
 
-target_pose.npy: numpy.float32 array, length 29
+## Safety Warnings
 
-Unit: radians
+- Always keep the robot’s surroundings clear when switching poses
+- Debug in simulation or with a safety harness first
+- Avoid switching directly to extreme or mechanically limited poses
 
-Order: defined in windows_gui.py under control_joints list
+---
 
-🛠 Troubleshooting
+## Contact & Contributions
 
-Qt plugin error when launching GUI
-→ The code auto-sets QT_QPA_PLATFORM_PLUGIN_PATH. Ensure dependencies are installed in your venv.
-
-No motion on robot side
-→ Check if target_pose.npy is updated on the robot. Inspect the npy file content directly.
-
-SCP upload failure
-→ Make sure OpenSSH is installed on Windows and that you can connect to the G1 with/without password.
-
-⚠️ Safety Warnings
-
-Ensure no obstacles around the robot during pose switching
-
-Debug first in simulation or with safety harness support
-
-Do not directly switch to extreme poses (large bends or mechanical limits)
-
-📬 Contact & Contributions
-
-Feel free to open issues or PRs for questions, feature requests, or contributions!
+Questions, feature requests, or contributions are welcome! Please open an issue or pull request on this repository.
